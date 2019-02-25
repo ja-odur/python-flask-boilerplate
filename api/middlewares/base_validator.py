@@ -10,6 +10,5 @@ class ValidationError(Exception):
         self.error['status'] = 'error'
         self.error['message'] = error['message']
 
-
     def to_dict(self):
         return self.error
