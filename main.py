@@ -8,6 +8,7 @@ from flask_migrate import Migrate
 from flask_restplus import Api
 from flask_cors import CORS
 from decouple import config as env_config
+from marshmallow import ValidationError as MarshmallowValidationError
 
 # middlewares
 from api import api_blueprint
@@ -19,6 +20,7 @@ from config import config
 
 # models
 from api.models.database import db
+from api.models.base.base_model_exception import BaseModelException
 
 config_name = env_config('FLASK_ENV', 'production')
 api = Api(api_blueprint, doc=False)
@@ -44,10 +46,37 @@ def create_app(config=config[config_name]):
     # Bind app to database
     db.init_app(app)
 
+    # import all models
+    from api.models import User
+
+    # import views
+    import api.views
+
     # Initialize migration script
     migrate = Migrate(app, db)
 
     return app
+
+
+@api.errorhandler(MarshmallowValidationError)
+@middleware_blueprint.app_errorhandler(MarshmallowValidationError)
+def handle_marshmallow_exception(error):
+    """Error handler called when a marshmallow ValidationError is raised"""
+
+    error_message = {
+        'message': 'An error occurred',
+        'status': 'error',
+        'errors': error.messages
+    }
+    return jsonify(error_message), 400
+
+
+@api.errorhandler(BaseModelException)
+@middleware_blueprint.app_errorhandler(BaseModelException)
+def handle_model_exception(exception):
+    """Error handler called when a models error is raised"""
+
+    return jsonify(exception.errors), exception.status_code
 
 
 @api.errorhandler(ValidationError)
@@ -55,10 +84,6 @@ def create_app(config=config[config_name]):
 def handle_exception(error):
     """Error handler called when a ValidationError is raised"""
 
-    # response = jsonify(error.to_dict)
-    # response.status_code = error.status_code
-    #
-    # return response
+    return jsonify(error.error), 400
 
-    return jsonify(error.to_dict), error.status_code
 
