@@ -19,7 +19,8 @@ def passwords_validator(password, confirm_password):
     """
 
     if password != confirm_password:
-        raise ValidationError(
-            validation_errors['password_match'].format(password,
-                                                       confirm_password)
+        return validation_errors['password_match'].format(
+            password,
+            confirm_password
         )
+

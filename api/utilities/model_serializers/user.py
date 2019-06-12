@@ -66,14 +66,16 @@ class UserSchema(AuditableBaseSchema):
 
     @validates_schema
     def validate_match(self, data):
+        password = data.get('password')
+        password_confirm = data.get('password_confirm')
 
-        if data['password'] != data['password_confirm']:
+        if password and password != password_confirm:
             raise ValidationError(
                 validation_errors['password_match'].format(
-                    data['password'],
-                    data['password_confirm']
+                    password,
+                    password_confirm
                 ),
-                field_names=['password_confirm']
+
             )
 
     @staticmethod

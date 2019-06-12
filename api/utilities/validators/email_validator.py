@@ -23,4 +23,4 @@ def email_validator(data):
 
     # Check if email pattern is matched
     if not EMAIL_REGEX.match(data):
-        raise ValidationError(validation_errors['email_syntax'])
+        return validation_errors['email_syntax']
