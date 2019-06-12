@@ -24,7 +24,7 @@ class AddUserResource(Resource):
         request_data = request.get_json()
 
         user_data = USER_SCHEMA.load_object_into_schema(request_data)
-        print('user_data', user_data)
+        # print('user_data', user_data)
 
         user = User(**user_data).save()
 
