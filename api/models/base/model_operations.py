@@ -27,7 +27,7 @@ from api.utilities.messages.error_messages import database_errors
 from .abstract_model import UniqueFields
 
 
-class ModelOperations(metaclass=UniqueFields):
+class ModelOperations():
 
     def save(self):
         """Save a model instance"""
@@ -204,3 +204,16 @@ class ModelOperations(metaclass=UniqueFields):
         if result:
             return True
         return False
+
+    @classmethod
+    def _get_fields(cls, keys=None):
+        fields = {}
+        if not keys:
+            for column in cls.__table__.columns:
+                fields.__setitem__(column.name, column)
+            return fields
+
+        for column in cls.__table__.columns:
+            fields.__setitem__(column.name, column) if column.name in keys else None
+
+        return fields
